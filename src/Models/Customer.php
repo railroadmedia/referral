@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property integer $usora_id
  * @property integer $user_referrals_performed
+ * @property string $user_referral_link
  *
  * @property Carbon $created_at
  * @property Carbon $updated_at

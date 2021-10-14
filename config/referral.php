@@ -9,4 +9,6 @@ return [
 
     'saasquatch_api_key' => env('SAASQUATCH_API_KEY'),
     'saasquatch_tenant_alias' => env('SAASQUATCH_TENANT_ALIAS'),
+    'saasquatch_referral_program_id' => '',
+    'saasquatch_program_share_links' => 'drumeo-30-day-referral-test',
 ];

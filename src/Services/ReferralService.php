@@ -2,97 +2,93 @@
 
 namespace Railroad\Referral\Services;
 
+use Carbon\Carbon;
 use Railroad\Referral\Contracts\UserEntityInterface;
 use Railroad\Referral\Models\Customer;
+use Railroad\Referral\Models\Structures\SaasquatchUser;
 
 class ReferralService
 {
     /**
-     * @param UserEntityInterface $user
-     *
-     * @return int
-     *
-     * @throws Exception
+     * @var SaasquatchService
      */
-    public function getUserReferralsLeft(
-        UserEntityInterface $user
-    ): int {
-        $customer = $this->getOrCreateCustomer($user);
+    private $saasquatchService;
 
-        $left = config('referral.referrals_per_user') - $customer->user_referrals_performed;
+    /**
+     * ReferralService constructor.
+     *
+     * @param ReferralService $referralService
+     */
+    public function __construct(SaasquatchService $saasquatchService)
+    {
+        $this->saasquatchService = $saasquatchService;
+    }
 
-        return $left >= 0 ? $left : 0;
+    public function getReferralsPerUser()
+    {
+        return config('referral.referrals_per_user');
     }
 
     /**
-     * @param UserEntityInterface $user
-     *
-     * @return string
-     *
-     * @throws Exception
-     */
-    public function getUserReferralLink(
-        UserEntityInterface $user
-    ): int {
-        // todo - update
-
-        return '';
-    }
-
-    /**
-     * @param UserEntityInterface $user
+     * @param int $userId
      *
      * @return Customer
      *
      * @throws Exception
      */
-    public function getCustomer(UserEntityInterface $user): ?Customer {
+    public function getCustomer(int $userId): ?Customer
+    {
         /**
          * @var $customer Customer
          */
         $customer = Customer::query()->where(
             [
-                'usora_id' => $user->getId(),
+                'usora_id' => $userId,
             ]
         )->first();
+
+        return $customer;
     }
 
     /**
-     * @param UserEntityInterface $user
+     * @param int $userId
      *
      * @return Customer
      *
      * @throws Exception
      */
-    public function getOrCreateCustomer(UserEntityInterface $user): Customer {
-        $customer = $this->getCustomer($user);
+    public function getOrCreateCustomer(int $userId): Customer
+    {
+        $customer = $this->getCustomer($userId);
 
         if (is_null($customer)) {
-            $customer = $this->createCustomer($user);
+            $customer = $this->createCustomer($userId);
         }
 
         return $customer;
     }
 
     /**
-     * @param UserEntityInterface $user
+     * @param int $userId
      *
      * @return Customer
      *
      * @throws Exception
      */
-    public function createCustomer(UserEntityInterface $user): Customer {
+    public function createCustomer(int $userId): Customer
+    {
+        $saasquatchUser = $this->saasquatchService->createOrGetUser($userId);
+
         $customer = new Customer();
 
-        $customer->internal_id = $userId;
+        $customer->usora_id = $userId;
         $customer->user_referrals_performed = 0;
+        $customer->user_referral_link = $saasquatchUser->getReferralLink();
 
         $customer->setCreatedAt(Carbon::now());
         $customer->setUpdatedAt(Carbon::now());
 
         $customer->saveOrFail();
-
-        // todo - add calls to saasquatch
 
         return $customer;
     }
