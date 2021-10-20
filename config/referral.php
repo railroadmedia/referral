@@ -5,6 +5,9 @@ return [
     'database_connection_name' => 'musora_mysql',
     'data_mode' => 'client', // 'host' or 'client', hosts do the db migrations, clients do not
 
+    'route_prefix' => 'referral',
+    'route_middleware_logged_in_groups' => [],
+
     'referrals_per_user' => 5,
 
     'saasquatch_api_key' => env('SAASQUATCH_API_KEY'),

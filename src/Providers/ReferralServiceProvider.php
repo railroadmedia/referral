@@ -24,6 +24,9 @@ class ReferralServiceProvider extends ServiceProvider
         if (config('referral.data_mode') == 'host') {
             $this->loadMigrationsFrom(__DIR__.'/../../migrations');
         }
+
+        //load package routes file
+        $this->loadRoutesFrom(__DIR__ . '/../../routes/routes.php');
     }
 
     /**

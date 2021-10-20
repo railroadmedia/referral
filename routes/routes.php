@@ -1,0 +1,15 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+Route::group([
+    'prefix' => config('referral.route_prefix'),
+    'middleware' => config('referral.route_middleware_logged_in_groups'),
+], function () {
+
+    Route::post(
+        '/email-invite',
+        Railroad\Referral\Controllers\ReferralController::class . '@emailInvite'
+    )->name('referral.email-invite');
+
+});
