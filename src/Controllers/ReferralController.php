@@ -30,11 +30,21 @@ class ReferralController extends Controller
      */
     public function emailInvite(EmailInviteRequest $request)
     {
-        // todo - add check for number of referrals user has
         $referalUser = $this->referralService->getOrCreateCustomer(auth()->id());
+
+        if (!$this->referralService->canRefer($referalUser)) {
+            return redirect()
+                    ->back()
+                    ->withInput()
+                    ->withErrors(['email-invite-message' => config('referral.messages.email_invite_fail')]);
+        }
 
         event(new EmailInvite(auth()->id(), $referalUser->user_referral_link, $request->get('email')));
 
+        $redirect = $request->has('redirect') ? $request->get('redirect') : url()->route(config('referral.email_invite_route'));
 
+        return redirect()
+            ->away($redirect)
+            ->with(['email-invite-message' => config('referral.messages.email_invite_success')]);
     }
 }

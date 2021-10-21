@@ -30,6 +30,16 @@ class ReferralService
     }
 
     /**
+     * @param Customer $customer
+     *
+     * @return bool
+     */
+    public function canRefer(Customer $customer): bool
+    {
+        return $customer->user_referrals_performed < $this->getReferralsPerUser();
+    }
+
+    /**
      * @param int $userId
      *
      * @return Customer

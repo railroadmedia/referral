@@ -12,4 +12,5 @@ Route::group([
         Railroad\Referral\Controllers\ReferralController::class . '@emailInvite'
     )->name('referral.email-invite');
 
+
 });
