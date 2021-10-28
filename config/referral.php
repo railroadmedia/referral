@@ -5,6 +5,14 @@ return [
     'database_connection_name' => 'musora_mysql',
     'data_mode' => 'client', // 'host' or 'client', hosts do the db migrations, clients do not
 
+    // unique user validation database info
+    'database_info_for_unique_user_email_validation' => [
+        'database_connection_name' => 'mysql',
+        'table' => 'users',
+        'email_column' => 'email',
+        'phone_number_column' => 'phone_number',
+    ],
+
     'route_prefix' => 'referral',
     'route_middleware_logged_in_groups' => [],
 

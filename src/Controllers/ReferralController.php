@@ -4,6 +4,7 @@ namespace Railroad\Referral\Controllers;
 
 use Illuminate\Routing\Controller;
 use Railroad\Referral\Events\EmailInvite;
+use Railroad\Referral\Requests\ClaimingJoinRequest;
 use Railroad\Referral\Requests\EmailInviteRequest;
 use Railroad\Referral\Services\ReferralService;
 
@@ -46,5 +47,15 @@ class ReferralController extends Controller
         return redirect()
             ->away($redirect)
             ->with(['email-invite-message' => config('referral.messages.email_invite_success')]);
+    }
+
+    /**
+     * @param EmailInviteRequest $request
+     *
+     * @return Fractal
+     */
+    public function claimingJoin(ClaimingJoinRequest $request)
+    {
+        // todo - raise event to create user then redirect to members or back with errors
     }
 }
