@@ -17,13 +17,14 @@ class CreateReferralCustomersTable extends Migration
             'referral_customers',
             function (Blueprint $table) {
 
-                $table->increments('usora_id');
+                $table->increments('id');
+                $table->integer('usora_id')->index();
 
                 $table->smallInteger('user_referrals_performed')->index();
-                $table->string('user_referral_link')->index()->nullable();
+                $table->string('user_referral_link', 191)->index()->nullable();
 
-                $table->timestamp('created_at')->index();
-                $table->timestamp('updated_at')->index();
+                $table->timestamp('created_at')->nullable()->index();
+                $table->timestamp('updated_at')->nullable()->index();
                 $table->timestamp('deleted_at')->nullable()->index();
 
             }
@@ -37,6 +38,6 @@ class CreateReferralCustomersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('referrals');
+        Schema::dropIfExists('referral_customers');
     }
 }
