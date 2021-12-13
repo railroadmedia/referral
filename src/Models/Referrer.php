@@ -11,21 +11,27 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @package Railroad\Referral\Models
  *
- * @property integer $usora_id
- * @property integer $user_referrals_performed
- * @property string $user_referral_link
+ * @property integer $user_id
+ * @property string $referral_program_id
+ * @property string $referral_link
+ * @property string $referral_code
+ * @property integer $referrals_performed
+ * @property integer $claimed_user_ids
  *
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon|null $deleted_at
  */
-class Customer extends Model
+class Referrer extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'referral_customers';
+    protected $table = 'referral_referrers';
+    protected $primaryKey = 'id';
 
-    protected $primaryKey = 'usora_id';
+    protected $casts = [
+        'claimed_user_ids' => 'array'
+    ];
 
     /**
      * Customer constructor.

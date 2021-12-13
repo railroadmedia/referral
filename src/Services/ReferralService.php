@@ -3,9 +3,7 @@
 namespace Railroad\Referral\Services;
 
 use Carbon\Carbon;
-use Railroad\Referral\Contracts\UserEntityInterface;
-use Railroad\Referral\Models\Customer;
-use Railroad\Referral\Models\Structures\SaasquatchUser;
+use Railroad\Referral\Models\Referrer;
 
 class ReferralService
 {
@@ -30,76 +28,76 @@ class ReferralService
     }
 
     /**
-     * @param Customer $customer
+     * @param Referrer $referrer
      *
      * @return bool
      */
-    public function canRefer(Customer $customer): bool
+    public function canRefer(Referrer $referrer): bool
     {
-        return $customer->user_referrals_performed < $this->getReferralsPerUser();
+        return $referrer->referrals_performed < $this->getReferralsPerUser();
     }
 
     /**
      * @param int $userId
+     * @param string $referralProgramId
      *
-     * @return Customer
+     * @return Referrer
      *
      * @throws Exception
      */
-    public function getCustomer(int $userId): ?Customer
+    public function getReferrer(int $userId, string $referralProgramId): ?Referrer
     {
         /**
-         * @var $customer Customer
+         * @var $referrer Referrer
          */
-        $customer = Customer::query()->where(
+        $referrer = Referrer::query()->where(
             [
-                'usora_id' => $userId,
+                'user_id' => $userId,
+                'referral_program_id' => $referralProgramId,
             ]
         )->first();
 
-        return $customer;
+        return $referrer;
     }
 
     /**
-     * @param int $userId
-     *
-     * @return Customer
-     *
-     * @throws Exception
+     * @param  int  $userId
+     * @param  string  $referralProgramId
+     * @return Referrer
      */
-    public function getOrCreateCustomer(int $userId): Customer
+    public function getOrCreateReferrer(int $userId, string $referralProgramId): Referrer
     {
-        $customer = $this->getCustomer($userId);
+        $referrer = $this->getReferrer($userId, $referralProgramId);
 
-        if (is_null($customer)) {
-            $customer = $this->createCustomer($userId);
+        if (is_null($referrer)) {
+            $referrer = $this->createReferrer($userId, $referralProgramId);
         }
 
-        return $customer;
+        return $referrer;
     }
 
     /**
-     * @param int $userId
-     *
-     * @return Customer
-     *
-     * @throws Exception
+     * @param  int  $userId
+     * @param  string  $programId
+     * @return Referrer
      */
-    public function createCustomer(int $userId): Customer
+    public function createReferrer(int $userId, string $referralProgramId): Referrer
     {
         $saasquatchUser = $this->saasquatchService->createOrGetUser($userId);
 
-        $customer = new Customer();
+        $referrer = new Referrer();
 
-        $customer->usora_id = $userId;
-        $customer->user_referrals_performed = 0;
-        $customer->user_referral_link = $saasquatchUser->getReferralLink();
+        $referrer->user_id = $userId;
+        $referrer->referral_program_id = $saasquatchUser->getReferralProgramId();
+        $referrer->referral_code = $saasquatchUser->getReferralCode();
+        $referrer->referral_link = $saasquatchUser->getReferralLink();
+        $referrer->referrals_performed = 0;
 
-        $customer->setCreatedAt(Carbon::now());
-        $customer->setUpdatedAt(Carbon::now());
+        $referrer->setCreatedAt(Carbon::now());
+        $referrer->setUpdatedAt(Carbon::now());
 
-        $customer->saveOrFail();
+        $referrer->saveOrFail();
 
-        return $customer;
+        return $referrer;
     }
 }

@@ -31,13 +31,13 @@ class ReferralJsonController extends Controller
      */
     public function emailInvite(EmailInviteJsonRequest $request)
     {
-        $referalUser = $this->referralService->getOrCreateCustomer(auth()->id());
+        $referalUser = $this->referralService->getOrCreateReferrer(auth()->id());
 
         if (!$this->referralService->canRefer($referalUser)) {
             throw new ReferralException(config('referral.messages.email_invite_fail'));
         }
 
-        event(new EmailInvite(auth()->id(), $referalUser->user_referral_link, $request->get('email')));
+        event(new EmailInvite(auth()->id(), $referalUser->referral_link, $request->get('email')));
 
         return response()->json(['success' => true]);
     }

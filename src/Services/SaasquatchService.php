@@ -17,7 +17,7 @@ class SaasquatchService
      */
     protected $saasquatchApi;
 
-    protected $programShareLinksName;
+    protected $saasquatchReferralProgramId;
 
     /**
      * SaasquatchService constructor.
@@ -28,7 +28,7 @@ class SaasquatchService
         SaasquatchApi $saasquatchApi
     ) {
         $this->saasquatchApi = $saasquatchApi;
-        $this->programShareLinksName = config('referral.saasquatch_program_share_links');
+        $this->saasquatchReferralProgramId = config('referral.saasquatch_referral_program_id');
     }
 
     /**
@@ -81,8 +81,10 @@ class SaasquatchService
     public function hydrateSaasquatchUser($userData): SaasquatchUser
     {
         $userId = $userData->id;
-        $userReferralLink = $userData->programShareLinks->{$this->programShareLinksName}->cleanShareLink;
 
-        return new SaasquatchUser($userId, $userReferralLink);
+        $referralCode = $userData->referralCodes->{$this->saasquatchReferralProgramId};
+        $referralLink = $userData->programShareLinks->{$this->saasquatchReferralProgramId}->cleanShareLink;
+
+        return new SaasquatchUser($userId, $this->saasquatchReferralProgramId, $referralCode, $referralLink);
     }
 }

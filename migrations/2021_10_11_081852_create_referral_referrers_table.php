@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateReferralCustomersTable extends Migration
+class CreateReferralReferrersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,14 +14,17 @@ class CreateReferralCustomersTable extends Migration
     public function up()
     {
         Schema::create(
-            'referral_customers',
+            'referral_referrers',
             function (Blueprint $table) {
 
                 $table->increments('id');
-                $table->integer('usora_id')->index();
+                $table->integer('user_id')->index();
 
-                $table->smallInteger('user_referrals_performed')->index();
-                $table->string('user_referral_link', 191)->index()->nullable();
+                $table->string('referral_program_id', 191)->index()->nullable();
+                $table->string('referral_code', 191)->index()->nullable();
+                $table->string('referral_link', 191)->index()->nullable();
+                $table->smallInteger('referrals_performed')->index();
+                $table->text('claimed_user_ids')->nullable();
 
                 $table->timestamp('created_at')->nullable()->index();
                 $table->timestamp('updated_at')->nullable()->index();
@@ -38,6 +41,6 @@ class CreateReferralCustomersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('referral_customers');
+        Schema::dropIfExists('referral_referrers');
     }
 }

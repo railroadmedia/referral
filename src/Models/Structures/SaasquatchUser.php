@@ -7,40 +7,60 @@ class SaasquatchUser
     /**
      * @var int
      */
-    private $id;
+    private $userId;
+
+    /**
+     * @var string
+     */
+    private $referralProgramId;
+
+    /**
+     * @var string
+     */
+    private $referralCode;
 
     /**
      * @var string
      */
     private $referralLink;
 
-    public function __construct($userId, $referralLink)
+    public function __construct($userId, $referralProgramId, $referralCode, $referralLink)
     {
-        $this->id = $userId;
+        $this->userId = $userId;
+        $this->referralProgramId = $referralProgramId;
+        $this->referralCode = $referralCode;
         $this->referralLink = $referralLink;
     }
 
     /**
      * @return int
      */
-    public function getId()
+    public function getUserId(): int
     {
-        return $this->id;
+        return $this->userId;
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getReferralLink(): ?string
+    public function getReferralProgramId(): string
+    {
+        return $this->referralProgramId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReferralCode(): string
+    {
+        return $this->referralCode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReferralLink(): string
     {
         return $this->referralLink;
-    }
-
-    /**
-     * @param string $referralLink
-     */
-    public function setReferralLink(string $referralLink)
-    {
-        $this->referralLink = $referralLink;
     }
 }

@@ -50,7 +50,7 @@ class SaasquatchApi
     public function createUser($userId)
     {
         $method = 'POST';
-        $pathFormat = '/api/v1/%s/open/account/%s/user/%s';
+        $pathFormat = '/api/v1/%s/open/account/%s/user/%s?fields=';
         $path = sprintf($pathFormat, $this->saasquatchTenantAlias, $userId, $userId);
 
         $requestJsonBody = [
@@ -59,8 +59,10 @@ class SaasquatchApi
         ];
 
         if (!empty($this->saasquatchReferralProgramId)) {
-            $requestJsonBody['referralCodes'] = ['referral-program-Id' => $this->saasquatchReferralProgramId];
+            $requestJsonBody['referralCodes'] = [$this->saasquatchReferralProgramId => $userId . '-' . $this->saasquatchReferralProgramId];
         }
+
+
 
         return $this->sendRequest($method, $path, $requestJsonBody);
     }
@@ -77,8 +79,10 @@ class SaasquatchApi
     public function getUser($userId)
     {
         $method = 'GET';
-        $pathFormat = '/api/v1/%s/open/account/%s/user/%s';
+        $pathFormat = '/api/v1/%s/open/account/%s/user/%s?fields=';
         $path = sprintf($pathFormat, $this->saasquatchTenantAlias, $userId, $userId);
+
+        $user = $this->sendRequest($method, $path);
 
         return $this->sendRequest($method, $path);
     }
@@ -147,7 +151,6 @@ class SaasquatchApi
             );
 
             $result = json_decode($response->getBody()->getContents());
-
         } catch (ClientException $cex) {
 
             if ($cex->getCode() == 404) {

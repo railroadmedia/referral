@@ -31,12 +31,8 @@ class ClaimingJoinRequest extends FormRequest
                 config('referral.database_info_for_unique_user_email_validation.table') .
                 ',' .
                 config('referral.database_info_for_unique_user_email_validation.email_column'),
-            'phone' => 'required|unique:' .
-                config('referral.database_info_for_unique_user_email_validation.database_connection_name') .
-                '.' .
-                config('referral.database_info_for_unique_user_email_validation.table') .
-                ',' .
-                config('referral.database_info_for_unique_user_email_validation.phone_number_column'),
+            'phone' => 'required',
+            'referral_code' => 'required',
             'password' => 'required|confirmed|' .
                 config('referral.password_creation_rules', 'min:8|max:128'),
         ];
@@ -51,7 +47,6 @@ class ClaimingJoinRequest extends FormRequest
     {
         return [
             'email.unique' => 'This email address is already in use. Try another friend!',
-            'phone.unique' => 'This phone number has already been used. Dial again!',
         ];
     }
 }
