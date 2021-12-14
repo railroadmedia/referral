@@ -11,11 +11,9 @@ Route::group([
         '/email-invite',
         Railroad\Referral\Controllers\ReferralController::class . '@emailInvite'
     )->name('referral.email-invite');
-
-    Route::post(
-        '/claiming-join',
-        Railroad\Referral\Controllers\ReferralController::class . '@claimingJoin'
-    )->name('referral.claiming-join');
-
-
 });
+
+Route::post(
+    '/claiming-join',
+    Railroad\Referral\Controllers\ReferralController::class . '@claimingJoin'
+)->name('referral.claiming-join');

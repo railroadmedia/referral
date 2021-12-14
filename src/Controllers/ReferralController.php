@@ -127,6 +127,8 @@ class ReferralController extends Controller
 
         $referrer->save();
 
+        // add account to saasquatch and mark their as the claimer for this referral
+
         auth()->loginUsingId($user->getId());
 
         return redirect()->route(config('referral.email_invite_route'));
