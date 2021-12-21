@@ -25,7 +25,11 @@ return [
     'saasquatch_api_key' => env('SAASQUATCH_API_KEY'),
     'saasquatch_tenant_alias' => env('SAASQUATCH_TENANT_ALIAS'),
     'saasquatch_referral_program_id' => env('SAASQUATCH_CURRENT_PROGRAM_ID'),
-    'saasquatch_program_share_links' => 'drumeo-30-day-referral-test',
+    'customer_io_saasquatch_event_name' => env('CUSTOMER_IO_SAASQUATCH_EVENT_NAME'),
+//    'customer_io_saasquatch_event_attribute' => env('CUSTOMER_IO_SAASQUATCH_EVENT_ATTRIBUTE'),
+
+
+//    'saasquatch_program_share_links' => 'drumeo-30-day-referral-test',  # Caleb said it can be removed
 
     'messages' => [
         'email_invite_success' => 'Invitation sent successfully',
@@ -38,4 +42,6 @@ return [
 
     // google reCaptcha, use this in form validation
     'recaptcha_site_secret' => '',
+
+//    'brand' => '',
 ];

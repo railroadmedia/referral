@@ -58,10 +58,18 @@ class SaasquatchApi
             'accountId' => $userId,
         ];
 
+        // din ceva motiv nu se salveaza referral code!
         if (!empty($this->saasquatchReferralProgramId)) {
-            $requestJsonBody['referralCodes'] = [$this->saasquatchReferralProgramId => $userId . '-' . $this->saasquatchReferralProgramId];
-        }
 
+            // if $this->saasquatchReferralProgramId !== drumeo-30-day-referral-test  (or with the id of the used program), we get a 500 error at post, but user is still created!
+            // https://app.referralsaasquatch.com/portal/p/611ee49be4d75768832a8231/t/test/programs/editor/drumeo-30-day-referral-test
+            // todo: catch this error! try hardcoding $this->saasquatchReferralProgramId and give an error message!
+            $requestJsonBody['referralCodes'] = [$this->saasquatchReferralProgramId => $userId . '-' . $this->saasquatchReferralProgramId];
+
+        }
+//var_dump($path);
+//var_dump($requestJsonBody);
+//die("create-user-saasquatch-1");
 
 
         return $this->sendRequest($method, $path, $requestJsonBody);
@@ -83,8 +91,23 @@ class SaasquatchApi
         $path = sprintf($pathFormat, $this->saasquatchTenantAlias, $userId, $userId);
 
         $user = $this->sendRequest($method, $path);
+//var_dump($userId);
+//var_dump($user);
+//var_dump(array_key_exists($this->saasquatchReferralProgramId, $user->referralCodes));
+//var_dump($user->referralCodes);
+//die("sasqautch-api-3");
 
-        return $this->sendRequest($method, $path);
+
+
+
+
+
+//        if(!array_key_exists($this->saasquatchReferralProgramId, $user->referralCodes)) {
+//            $user = $this->updateUser($userId);
+//        }
+
+
+        return $user;
     }
 
     /**
@@ -141,6 +164,10 @@ class SaasquatchApi
             $requestData[RequestOptions::BODY] = $requestBody;
         }
 
+//var_dump($requestData);
+//var_dump($requestJsonBody);
+//var_dump($path);
+//die("saasquatch-api-send-request-3");
         $result = null;
 
         try {
@@ -151,6 +178,8 @@ class SaasquatchApi
             );
 
             $result = json_decode($response->getBody()->getContents());
+//var_dump($result);
+//die("mircea-saasquatch-api-2");
         } catch (ClientException $cex) {
 
             if ($cex->getCode() == 404) {
@@ -201,7 +230,47 @@ class SaasquatchApi
         } catch (Exception $ex) {
             throw new ReferralException($ex->getMessage(), $serEx->getCode());
         }
-
+//var_dump($requestJsonBody);
+//var_dump($result);
+//die("mircea=saasqautch-api");
         return $result;
+    }
+
+
+
+    /**
+     * @param int $userId
+     *
+     * @return object
+     *
+     * @throws ReferralException
+     * @throws SaasquatchException
+     * @throws SaasquatchUserExistsException
+     */
+    public function updateUser($userId)
+    {
+        $method = 'PUT';
+        $pathFormat = '/api/v1/%s/open/account/%s/user/%s?fields=';
+        $path = sprintf($pathFormat, $this->saasquatchTenantAlias, $userId, $userId);
+
+        $requestJsonBody = [
+            'id' => $userId,
+            'accountId' => $userId,
+        ];
+
+        if (!empty($this->saasquatchReferralProgramId)) {
+            $requestJsonBody['referralCodes'] = [$this->saasquatchReferralProgramId => $userId . '-' . $this->saasquatchReferralProgramId];
+
+        }
+
+//var_dump();
+//var_dump();
+//var_dump($requestJsonBody);
+//
+//die("update-user-mircea-2");
+//
+//var_dump($this->sendRequest($method, $path, $requestJsonBody));
+//die("update-user-mircea");
+        return $this->sendRequest($method, $path, $requestJsonBody);
     }
 }

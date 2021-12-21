@@ -59,7 +59,18 @@ class ReferralController extends Controller
      */
     public function emailInvite(EmailInviteRequest $request)
     {
+//var_dump($request);
+//var_dump($request->get('link'));
+//die("referral-controller-debug-1");
+
+//"saasquatchReferralProgramId":protected]=> string(27) "drumeo-30-day-referral-test" }
+
+        // todo: validation that email and link exists
+        // do we need programId also??
         $referalUser = $this->referralService->getOrCreateReferrer(auth()->id());
+//dd($referalUser); // linkul nu apare aici!!
+//die("referral-controller-3");
+//        $referalUser = $this->referralService->getOrCreateReferrer(auth()->id(), $request->get('link'));
 
         if (!$this->referralService->canRefer($referalUser)) {
             return redirect()
@@ -68,7 +79,8 @@ class ReferralController extends Controller
                 ->withErrors(['email-invite-message' => config('referral.messages.email_invite_fail')]);
         }
 
-        event(new EmailInvite(auth()->id(), $referalUser->referral_link, $request->get('email')));
+        //todo:  program_id sau event_name?   update: done
+        event(new EmailInvite($referalUser->referral_link, $request->get('email')));
 
         $redirect = $request->has('redirect') ? $request->get('redirect') : url()->route(
             config('referral.email_invite_route')
@@ -86,6 +98,7 @@ class ReferralController extends Controller
      */
     public function claimingJoin(ClaimingJoinRequest $request)
     {
+die("claiming-join-referral-controller-1");
         /**
          * @var $referrer Referrer
          */
@@ -128,6 +141,7 @@ class ReferralController extends Controller
         $referrer->save();
 
         // add account to saasquatch and mark their as the claimer for this referral
+        // todo: from Caleb
 
         auth()->loginUsingId($user->getId());
 
