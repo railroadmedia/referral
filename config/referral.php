@@ -13,6 +13,8 @@ return [
         'phone_number_column' => 'phone_number',
     ],
 
+    'brand' => 'brand',
+
     'route_prefix' => 'referral',
     'route_middleware_logged_in_groups' => [],
 

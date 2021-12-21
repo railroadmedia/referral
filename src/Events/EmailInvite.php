@@ -15,14 +15,21 @@ class EmailInvite
     protected $referralLink;
 
     /**
+     * @var string
+     */
+    private $brand;
+
+    /**
      * EmailInvite constructor.
      * @param  string  $receiversEmail
      * @param  string  $referralLink
+     * @param  string  $brand
      */
-    public function __construct(string $receiversEmail, string $referralLink)
+    public function __construct(string $receiversEmail, string $referralLink, string $brand)
     {
         $this->receiversEmail = $receiversEmail;
         $this->referralLink = $referralLink;
+        $this->brand = $brand;
     }
 
     /**
@@ -39,5 +46,13 @@ class EmailInvite
     public function getReferralLink(): string
     {
         return $this->referralLink;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBrand(): string
+    {
+        return $this->brand;
     }
 }

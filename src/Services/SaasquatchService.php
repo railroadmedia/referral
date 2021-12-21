@@ -65,10 +65,10 @@ class SaasquatchService
         $userData = $this->getUser($userId);
 
         if (empty($userData)) {
-            $userData = $this->saasquatchApi->createUser($userId);
+            $userData = $this->hydrateSaasquatchUser($this->saasquatchApi->createUser($userId));
         }
 
-        return $this->hydrateSaasquatchUser($userData);
+        return $userData;
     }
 
     /**

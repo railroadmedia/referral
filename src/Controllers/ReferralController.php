@@ -73,7 +73,7 @@ class ReferralController extends Controller
         }
 
         // this event is used in other packages to actually send the email
-        event(new EmailInvite($referrer->referral_link, $request->get('email')));
+        event(new EmailInvite($request->get('email'), $referrer->referral_link, config('referral.brand')));
 
         $redirect = $request->has('redirect') ? $request->get('redirect') : url()->route(
             config('referral.email_invite_redirect_route')
