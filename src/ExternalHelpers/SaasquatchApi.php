@@ -15,7 +15,7 @@ use Railroad\Referral\Exceptions\SaasquatchUserExistsException;
 
 class SaasquatchApi
 {
-    CONST BASE_URI = 'https://app.referralsaasquatch.com';
+    const BASE_URI = 'https://app.referralsaasquatch.com';
 
     /**
      * @var Client
@@ -39,7 +39,7 @@ class SaasquatchApi
     }
 
     /**
-     * @param int $userId
+     * @param  int  $userId
      *
      * @return object
      *
@@ -58,25 +58,11 @@ class SaasquatchApi
             'accountId' => $userId,
         ];
 
-        // din ceva motiv nu se salveaza referral code!
-        if (!empty($this->saasquatchReferralProgramId)) {
-
-            // if $this->saasquatchReferralProgramId !== drumeo-30-day-referral-test  (or with the id of the used program), we get a 500 error at post, but user is still created!
-            // https://app.referralsaasquatch.com/portal/p/611ee49be4d75768832a8231/t/test/programs/editor/drumeo-30-day-referral-test
-            // todo: catch this error! try hardcoding $this->saasquatchReferralProgramId and give an error message!
-            $requestJsonBody['referralCodes'] = [$this->saasquatchReferralProgramId => $userId . '-' . $this->saasquatchReferralProgramId];
-
-        }
-//var_dump($path);
-//var_dump($requestJsonBody);
-//die("create-user-saasquatch-1");
-
-
         return $this->sendRequest($method, $path, $requestJsonBody);
     }
 
     /**
-     * @param int $userId
+     * @param  int  $userId
      *
      * @return object
      *
@@ -91,21 +77,6 @@ class SaasquatchApi
         $path = sprintf($pathFormat, $this->saasquatchTenantAlias, $userId, $userId);
 
         $user = $this->sendRequest($method, $path);
-//var_dump($userId);
-//var_dump($user);
-//var_dump(array_key_exists($this->saasquatchReferralProgramId, $user->referralCodes));
-//var_dump($user->referralCodes);
-//die("sasqautch-api-3");
-
-
-
-
-
-
-//        if(!array_key_exists($this->saasquatchReferralProgramId, $user->referralCodes)) {
-//            $user = $this->updateUser($userId);
-//        }
-
 
         return $user;
     }
@@ -126,7 +97,7 @@ class SaasquatchApi
     }
 
     /**
-     * @param int $userId
+     * @param  int  $userId
      *
      * @throws NotFoundException
      * @throws ReferralException
@@ -142,104 +113,7 @@ class SaasquatchApi
     }
 
     /**
-     * @param string $method
-     * @param string $path
-     * @param array $requestJsonBody
-     * @param string $requestBody
-     *
-     * @return object
-     *
-     * @throws NotFoundException
-     * @throws ReferralException
-     * @throws SaasquatchException
-     * @throws SaasquatchUserExistsException
-     */
-    public function sendRequest($method, $path, $requestJsonBody = null, $requestBody = null)
-    {
-        $requestData = [RequestOptions::AUTH => ['', $this->saasquatchApiKey]];
-
-        if (!empty($requestJsonBody)) {
-            $requestData[RequestOptions::JSON] = $requestJsonBody;
-        } else if (!empty($requestBody)) {
-            $requestData[RequestOptions::BODY] = $requestBody;
-        }
-
-//var_dump($requestData);
-//var_dump($requestJsonBody);
-//var_dump($path);
-//die("saasquatch-api-send-request-3");
-        $result = null;
-
-        try {
-            $response = $this->httpClient->request(
-                $method,
-                $path,
-                $requestData
-            );
-
-            $result = json_decode($response->getBody()->getContents());
-//var_dump($result);
-//die("mircea-saasquatch-api-2");
-        } catch (ClientException $cex) {
-
-            if ($cex->getCode() == 404) {
-                $message = 'Entity not found';
-
-                if ($cex->getResponse() instanceof Response) {
-                    try {
-                        $responseContents = $cex->getResponse()->getBody()->getContents();
-                        $responseData = json_decode($responseContents);
-                        $message = $responseData->message;
-                    } catch (Exception $e) {
-                    }
-                }
-
-                throw new NotFoundException($message);
-            } if ($cex->getCode() == 400 && $cex->getResponse() instanceof Response) {
-                $message = null;
-
-                try {
-                    $responseContents = $cex->getResponse()->getBody()->getContents();
-                    $responseData = json_decode($responseContents);
-                    $message = $responseData->message;
-                } catch (Exception $e) {
-                }
-
-                if ($message == 'User already exists') {
-                    throw new SaasquatchUserExistsException();
-                }
-            }
-
-            throw new ReferralException($cex->getMessage(), $cex->getCode());
-
-        } catch (ServerException $serEx) {
-
-            $message = $serEx->getMessage();
-
-            if ($serEx->getResponse() instanceof Response) {
-                try {
-                    $responseContents = $serEx->getResponse()->getBody()->getContents();
-                    $responseData = json_decode($responseContents);
-                    $message = $responseData->message;
-                } catch (Exception $e) {
-                }
-            }
-
-            throw new SaasquatchException($message, $serEx->getCode());
-
-        } catch (Exception $ex) {
-            throw new ReferralException($ex->getMessage(), $serEx->getCode());
-        }
-//var_dump($requestJsonBody);
-//var_dump($result);
-//die("mircea=saasqautch-api");
-        return $result;
-    }
-
-
-
-    /**
-     * @param int $userId
+     * @param  int  $userId
      *
      * @return object
      *
@@ -258,19 +132,109 @@ class SaasquatchApi
             'accountId' => $userId,
         ];
 
-        if (!empty($this->saasquatchReferralProgramId)) {
-            $requestJsonBody['referralCodes'] = [$this->saasquatchReferralProgramId => $userId . '-' . $this->saasquatchReferralProgramId];
+        return $this->sendRequest($method, $path, $requestJsonBody);
+    }
 
+
+    /**
+     * @param $userId
+     * @param $referralCode
+     * @return object
+     * @throws NotFoundException
+     * @throws ReferralException
+     * @throws SaasquatchException
+     * @throws SaasquatchUserExistsException
+     */
+    public function applyReferralCode($userId, $referralCode)
+    {
+        $method = 'POST';
+        $pathFormat = '/api/v1/%s/open/code/%s/account/%s/user/%s?fields=';
+        $path = sprintf($pathFormat, $this->saasquatchTenantAlias, $referralCode, $userId, $userId);
+
+        return $this->sendRequest($method, $path, []);
+    }
+
+    /**
+     * @param  string  $method
+     * @param  string  $path
+     * @param  array  $requestJsonBody
+     * @param  string  $requestBody
+     *
+     * @return object
+     *
+     * @throws NotFoundException
+     * @throws ReferralException
+     * @throws SaasquatchException
+     * @throws SaasquatchUserExistsException
+     */
+    public function sendRequest($method, $path, $requestJsonBody = null, $requestBody = null)
+    {
+        $requestData = [RequestOptions::AUTH => ['', $this->saasquatchApiKey]];
+
+        if (!empty($requestJsonBody)) {
+            $requestData[RequestOptions::JSON] = $requestJsonBody;
+        } elseif (!empty($requestBody)) {
+            $requestData[RequestOptions::BODY] = $requestBody;
         }
 
-//var_dump();
-//var_dump();
-//var_dump($requestJsonBody);
-//
-//die("update-user-mircea-2");
-//
-//var_dump($this->sendRequest($method, $path, $requestJsonBody));
-//die("update-user-mircea");
-        return $this->sendRequest($method, $path, $requestJsonBody);
+        $result = null;
+
+        try {
+            $response = $this->httpClient->request(
+                $method,
+                $path,
+                $requestData
+            );
+
+            $result = json_decode($response->getBody()->getContents());
+        } catch (ClientException $cex) {
+            if ($cex->getCode() == 404) {
+                $message = 'Entity not found';
+
+                if ($cex->getResponse() instanceof Response) {
+                    try {
+                        $responseContents = $cex->getResponse()->getBody()->getContents();
+                        $responseData = json_decode($responseContents);
+                        $message = $responseData->message;
+                    } catch (Exception $e) {
+                    }
+                }
+
+                throw new NotFoundException($message);
+            }
+            if ($cex->getCode() == 400 && $cex->getResponse() instanceof Response) {
+                $message = null;
+
+                try {
+                    $responseContents = $cex->getResponse()->getBody()->getContents();
+                    $responseData = json_decode($responseContents);
+                    $message = $responseData->message;
+                } catch (Exception $e) {
+                }
+
+                if ($message == 'User already exists') {
+                    throw new SaasquatchUserExistsException();
+                }
+            }
+
+            throw new ReferralException($cex->getMessage(), $cex->getCode());
+        } catch (ServerException $serEx) {
+            $message = $serEx->getMessage();
+
+            if ($serEx->getResponse() instanceof Response) {
+                try {
+                    $responseContents = $serEx->getResponse()->getBody()->getContents();
+                    $responseData = json_decode($responseContents);
+                    $message = $responseData->message;
+                } catch (Exception $e) {
+                }
+            }
+
+            throw new SaasquatchException($message, $serEx->getCode());
+        } catch (Exception $ex) {
+            throw new ReferralException($ex->getMessage(), $ex->getCode());
+        }
+
+        return $result;
     }
 }

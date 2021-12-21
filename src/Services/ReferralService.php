@@ -3,7 +3,11 @@
 namespace Railroad\Referral\Services;
 
 use Carbon\Carbon;
+use Exception;
+use Railroad\Referral\Exceptions\ReferralException;
+use Railroad\Referral\Exceptions\SaasquatchException;
 use Railroad\Referral\Models\Referrer;
+use Throwable;
 
 class ReferralService
 {
@@ -15,7 +19,7 @@ class ReferralService
     /**
      * ReferralService constructor.
      *
-     * @param ReferralService $referralService
+     * @param  SaasquatchService  $saasquatchService
      */
     public function __construct(SaasquatchService $saasquatchService)
     {
@@ -28,7 +32,7 @@ class ReferralService
     }
 
     /**
-     * @param Referrer $referrer
+     * @param  Referrer  $referrer
      *
      * @return bool
      */
@@ -38,8 +42,8 @@ class ReferralService
     }
 
     /**
-     * @param int $userId
-     * @param string $referralProgramId
+     * @param  int  $userId
+     * @param  string  $referralProgramId
      *
      * @return Referrer
      *
@@ -62,49 +66,37 @@ class ReferralService
 
     /**
      * @param  int  $userId
-//     * @param  string  $referralProgramId
+     * @param  string  $referralProgramId
      * @return Referrer
      */
     public function getOrCreateReferrer(int $userId, string $referralProgramId): Referrer
-//    public function getOrCreateReferrer(int $userId): Referrer
-        {
+    {
+        $referrer = $this->getReferrer($userId, $referralProgramId);
 
-//            $referralProgramId =  env('SAASQUATCH_API_KEY');
-//        $referralProgramId =  config('referral.saasquatch_api_key');  //todo: is this api_key or referral_program_id?? // update: is referral_program_id
-
-//var_dump($referralProgramId);
-//die("referral-service-8");
-//        env('APP_ENV') .
-//        '.providers.facebook-pixel.pixel-id'
-        $referrer = $this->getReferrer($userId, $referralProgramId); // din ceva motiv nu creaza aici referrer  // update: is ok now
-
-//var_dump();
         if (is_null($referrer)) {
-            $referrer = $this->createReferrer($userId, $referralProgramId);
+            $referrer = $this->createReferrer($userId);
         }
-var_dump($referrer);
-die("referral-servicemircea2");
+
         return $referrer;
     }
 
     /**
      * @param  int  $userId
-//     * @param  string  $programId
      * @return Referrer
+     * @throws ReferralException
+     * @throws SaasquatchException
+     * @throws Throwable
      */
-//    public function createReferrer(int $userId, string $referralProgramId): Referrer
     public function createReferrer(int $userId): Referrer
-        {
+    {
         $saasquatchUser = $this->saasquatchService->createOrGetUser($userId);
-//var_dump($saasquatchUser);
-//die("referral-servce-2");
 
         $referrer = new Referrer();
 
         $referrer->user_id = $userId;
         $referrer->referral_program_id = $saasquatchUser->getReferralProgramId();
         $referrer->referral_code = $saasquatchUser->getReferralCode();
-        $referrer->referral_link = $saasquatchUser->getReferralLink(); //aici
+        $referrer->referral_link = $saasquatchUser->getReferralLink();
         $referrer->referrals_performed = 0;
 
         $referrer->setCreatedAt(Carbon::now());

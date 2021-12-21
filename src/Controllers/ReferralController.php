@@ -4,6 +4,7 @@ namespace Railroad\Referral\Controllers;
 
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
 use Railroad\Ecommerce\Contracts\UserProviderInterface;
@@ -55,36 +56,34 @@ class ReferralController extends Controller
     /**
      * @param  EmailInviteRequest  $request
      *
-     * @return RedirectResponse
+     * @return JsonResponse|RedirectResponse
      */
     public function emailInvite(EmailInviteRequest $request)
     {
-//var_dump($request);
-//var_dump($request->get('link'));
-//die("referral-controller-debug-1");
+        $referrer = $this->referralService->getOrCreateReferrer(
+            auth()->id(),
+            config('referral.saasquatch_referral_program_id')
+        );
 
-//"saasquatchReferralProgramId":protected]=> string(27) "drumeo-30-day-referral-test" }
-
-        // todo: validation that email and link exists
-        // do we need programId also??
-        $referalUser = $this->referralService->getOrCreateReferrer(auth()->id());
-//dd($referalUser); // linkul nu apare aici!!
-//die("referral-controller-3");
-//        $referalUser = $this->referralService->getOrCreateReferrer(auth()->id(), $request->get('link'));
-
-        if (!$this->referralService->canRefer($referalUser)) {
+        if (!$this->referralService->canRefer($referrer)) {
             return redirect()
                 ->back()
                 ->withInput()
                 ->withErrors(['email-invite-message' => config('referral.messages.email_invite_fail')]);
         }
 
-        //todo:  program_id sau event_name?   update: done
-        event(new EmailInvite($referalUser->referral_link, $request->get('email')));
+        // this event is used in other packages to actually send the email
+        event(new EmailInvite($referrer->referral_link, $request->get('email')));
 
         $redirect = $request->has('redirect') ? $request->get('redirect') : url()->route(
-            config('referral.email_invite_route')
+            config('referral.email_invite_redirect_route')
         );
+
+        // this endpoint can handle json requests for the mobile app as well
+        if ($request->isJson()) {
+            return response()
+                ->json(['success' => true, 'email-invite-message' => config('referral.messages.email_invite_success')]);
+        }
 
         return redirect()
             ->away($redirect)
@@ -92,13 +91,12 @@ class ReferralController extends Controller
     }
 
     /**
-     * @param  EmailInviteRequest  $request
+     * @param  ClaimingJoinRequest  $request
      *
-     * @return RedirectResponse
+     * @return JsonResponse|RedirectResponse
      */
     public function claimingJoin(ClaimingJoinRequest $request)
     {
-die("claiming-join-referral-controller-1");
         /**
          * @var $referrer Referrer
          */
@@ -136,6 +134,7 @@ die("claiming-join-referral-controller-1");
 
         $claimedUserIds = $referrer->claimed_user_ids;
         $claimedUserIds[] = $user->getId();
+
         $referrer->claimed_user_ids = $claimedUserIds;
 
         $referrer->save();
@@ -145,6 +144,12 @@ die("claiming-join-referral-controller-1");
 
         auth()->loginUsingId($user->getId());
 
-        return redirect()->route(config('referral.email_invite_route'));
+        // this endpoint can handle json requests for the mobile app as well
+        if ($request->isJson()) {
+            return response()
+                ->json(['success' => true, 'claiming_user_id' => $user->getId()]);
+        }
+
+        return redirect()->route(config('referral.email_invite_redirect_route'));
     }
 }

@@ -22,7 +22,7 @@ class SaasquatchService
     /**
      * SaasquatchService constructor.
      *
-     * @param SaasquatchApi $saasquatchApi
+     * @param  SaasquatchApi  $saasquatchApi
      */
     public function __construct(
         SaasquatchApi $saasquatchApi
@@ -32,7 +32,7 @@ class SaasquatchService
     }
 
     /**
-     * @param int $userId
+     * @param  int  $userId
      *
      * @return SaasquatchUser|null
      *
@@ -43,8 +43,6 @@ class SaasquatchService
     {
         try {
             $userData = $this->saasquatchApi->getUser($userId);
-//var_dump($userData);
-//die("mircea-debug-7");
 
             return $this->hydrateSaasquatchUser($userData);
         } catch (NotFoundException $ex) {
@@ -55,7 +53,7 @@ class SaasquatchService
     }
 
     /**
-     * @param int $userId
+     * @param  int  $userId
      *
      * @return SaasquatchUser
      *
@@ -64,70 +62,44 @@ class SaasquatchService
      */
     public function createOrGetUser($userId): SaasquatchUser
     {
-//        var_dump($this->saasquatchApi->createUser($userId));
-//        die("mircea-debug1");
-        try {
+        $userData = $this->getUser($userId);
 
-            // in case user already exists:  {"errors":[{"title":"Saasquatch Exception","detail":"User already exists"}],"code":400}
-            // gets out of try catch
-
-//var_dump($this->saasquatchApi->createUser($userId));
-//die("mircea-debug-3");
-
-            // todo: if user already exists, error: {"errors":[{"title":"Saasquatch Exception","detail":"User already exists"}],"code":400}
-            // todo: //update: it only happens if the data from POST is invalid ('drumeo-30-day-referral-test' instead of 'drumeo-30-day-referral-link_30-day')
-
-            // error will be caught be try/catch and it will try to update the user!
-            // if there is a different program_id than the one from .env, it will break at hydrateSaasquatchUser
-            $userData = $this->saasquatchApi->createUser($userId);   // crapa aici
-//dd($userData);
-//var_dump($userData);
-//die("saasquatch-service-4");
-//            die("mircea-debug-6");
-
-            return $this->hydrateSaasquatchUser($userData);
-        } catch (SaasquatchUserExistsException $ex) {
-            // if error, enters here
-            // IF USER EXISTS, IT CATHCES THIS EXCEPTION!!!! IT WILL NOT APPEAR IN LOGS!!!!!!!!!
-
-//            var_dump($this->getUser($userId));
-//            die("mircea-debug2");
-            return $this->getUser($userId);
-        } catch (Exception $e) {
-//            die("mircea-debug3");
-            throw $e;
+        if (empty($userData)) {
+            $userData = $this->saasquatchApi->createUser($userId);
         }
+
+        return $this->hydrateSaasquatchUser($userData);
     }
 
     /**
-     * @param object $userData
+     * @param $userId
+     * @param $referralCode
+     * @return bool
+     * @throws NotFoundException
+     * @throws ReferralException
+     * @throws SaasquatchException
+     * @throws SaasquatchUserExistsException
+     */
+    public function applyReferralCode($userId, $referralCode)
+    {
+        $saasquatchUser = $this->createOrGetUser($userId);
+
+        $this->saasquatchApi->applyReferralCode($userId, $referralCode);
+
+        return true;
+    }
+
+    /**
+     * @param  object  $userData
      *
      * @return SaasquatchUser
      */
     public function hydrateSaasquatchUser($userData): SaasquatchUser
     {
         $userId = $userData->id;
-//        $saasquatchProgramId = config('referral.saasquatch_referral_program_id');
-
-
-//var_dump($userData->referralCodes);
-//var_dump($this->saasquatchReferralProgramId);
-//var_dump(array_key_exists($this->saasquatchReferralProgramId, $userData->referralCodes));
-//var_dump(array_key_exists("drumeo-30-day-referral-test", $userData->referralCodes));
-//var_dump($userData['programShareLinks']);
-//var_dump($userData->programShareLinks->{$this->saasquatchReferralProgramId}->cleanShareLink);
-
-//die("mirceadebug-saasservice");
-
 
         $referralCode = $userData->referralCodes->{$this->saasquatchReferralProgramId};
-//        $referralLink = $userData->programShareLinks->{$this->saasquatchReferralProgramId}->cleanShareLink;
-//        $referralLink = $userData->programShareLinks->{$this->saasquatchReferralProgramId}->cleanShareLink;
-//        $referralLink = "drumeo-30-day-referral-link_30-day";  // todo: add it dynamically!!  // update: done
-//        $referralLink = config('referral.customer_io_saasquatch_event_attribute');
         $referralLink = $userData->programShareLinks->{$this->saasquatchReferralProgramId}->cleanShareLink;
-
-//die("mirceadebug-saasservice");
 
         return new SaasquatchUser($userId, $this->saasquatchReferralProgramId, $referralCode, $referralLink);
     }
