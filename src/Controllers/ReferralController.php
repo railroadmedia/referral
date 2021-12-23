@@ -15,6 +15,7 @@ use Railroad\Referral\Models\Referrer;
 use Railroad\Referral\Requests\ClaimingJoinRequest;
 use Railroad\Referral\Requests\EmailInviteRequest;
 use Railroad\Referral\Services\ReferralService;
+use Railroad\Referral\Services\SaasquatchService;
 
 class ReferralController extends Controller
 {
@@ -39,18 +40,25 @@ class ReferralController extends Controller
     private $userProductService;
 
     /**
+     * @var SaasquatchService
+     */
+    private $saasquatchService;
+
+    /**
      * @param  ReferralService  $referralService
      */
     public function __construct(
         ReferralService $referralService,
         UserProviderInterface $userProvider,
         ProductRepository $productRepository,
-        UserProductService $userProductService
+        UserProductService $userProductService,
+        SaasquatchService $saasquatchService
     ) {
         $this->referralService = $referralService;
         $this->userProvider = $userProvider;
         $this->productRepository = $productRepository;
         $this->userProductService = $userProductService;
+        $this->saasquatchService = $saasquatchService;
     }
 
     /**
@@ -60,6 +68,7 @@ class ReferralController extends Controller
      */
     public function emailInvite(EmailInviteRequest $request)
     {
+
         $referrer = $this->referralService->getOrCreateReferrer(
             auth()->id(),
             config('referral.saasquatch_referral_program_id')
@@ -102,6 +111,13 @@ class ReferralController extends Controller
          */
         $referrer = Referrer::query()->where('referral_code', $request->get('referral_code'))->firstOrFail();
 
+        if (!$this->referralService->canRefer($referrer)) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['email-invite-message' => config('referral.messages.email_invite_fail')]);
+        }
+
         $user = $this->userProvider->createUser($request->get('email'), $request->get('password'));
 
         if (empty($user)) {
@@ -139,8 +155,7 @@ class ReferralController extends Controller
 
         $referrer->save();
 
-        // add account to saasquatch and mark their as the claimer for this referral
-        // todo: from Caleb
+        $this->saasquatchService->applyReferralCode($user->getId(), $referrer->referral_code);
 
         auth()->loginUsingId($user->getId());
 

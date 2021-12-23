@@ -13,6 +13,8 @@ return [
         'phone_number_column' => 'phone_number',
     ],
 
+    'password_creation_rules' => 'confirmed|min:8|max:128',
+
     'brand' => 'brand',
 
     'route_prefix' => 'referral',

@@ -2,7 +2,9 @@
 
 namespace Railroad\Referral\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\ValidationException;
 
 class ClaimingJoinRequest extends FormRequest
 {
@@ -36,6 +38,7 @@ class ClaimingJoinRequest extends FormRequest
             'password' => 'required|confirmed|' .
                 config('referral.password_creation_rules', 'min:8|max:128'),
         ];
+
     }
 
     /**
@@ -49,4 +52,5 @@ class ClaimingJoinRequest extends FormRequest
             'email.unique' => 'This email address is already in use. Try another friend!',
         ];
     }
+
 }
