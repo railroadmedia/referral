@@ -33,7 +33,7 @@ return [
 
     'messages' => [
         'email_invite_success' => 'Invitation sent successfully',
-        'email_invite_fail' => 'Maximum referrals reached',
+        'email_invite_fail' => 'Maximum referrals reached'
     ],
 
     // once claimed, this product is assigned to the claiming user for the amount of days
