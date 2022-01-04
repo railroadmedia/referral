@@ -14,8 +14,14 @@ Route::group(
             Railroad\Referral\Controllers\ReferralController::class.'@emailInvite'
         )->name('referral.email-invite');
     },
+
 );
-Route::group(['middleware' => ['web']], function () {
+
+Route::group(
+    [
+        'middleware' => config('referral.route_middleware_not_logged_in_groups'),
+        'prefix' => config('referral.route_prefix'),
+    ], function () {
     Route::post(
         '/claiming-join',
         Railroad\Referral\Controllers\ReferralController::class . '@claimingJoin'

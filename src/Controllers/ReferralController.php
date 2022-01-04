@@ -68,7 +68,6 @@ class ReferralController extends Controller
      */
     public function emailInvite(EmailInviteRequest $request)
     {
-
         $referrer = $this->referralService->getOrCreateReferrer(
             auth()->id(),
             config('referral.saasquatch_referral_program_id')

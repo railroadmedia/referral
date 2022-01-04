@@ -19,6 +19,7 @@ return [
 
     'route_prefix' => 'referral',
     'route_middleware_logged_in_groups' => [],
+    'route_middleware_not_logged_in_groups' => [],
 
     'app_route_prefix' => 'api/referral',
     'app_route_middleware_logged_in_groups' => [],
