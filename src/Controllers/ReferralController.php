@@ -110,6 +110,12 @@ class ReferralController extends Controller
          */
         $referrer = Referrer::query()->where('referral_code', $request->get('referral_code'))->firstOrFail();
 
+        if (empty($referrer)) {
+            throw new Exception(
+                'Error finding referrer for referral code: ' . $request->get('referral_code'));
+        }
+
+
         if (!$this->referralService->canRefer($referrer)) {
             return redirect()
                 ->back()

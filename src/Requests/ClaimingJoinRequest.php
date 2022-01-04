@@ -25,7 +25,8 @@ class ClaimingJoinRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'email' => 'required|email|unique:' .
+            'g-recaptcha-response' => 'required',
+             'email' => 'required|email|unique:' .
                 config('referral.database_info_for_unique_user_email_validation.database_connection_name') .
                 '.' .
                 config('referral.database_info_for_unique_user_email_validation.table') .
@@ -48,6 +49,7 @@ class ClaimingJoinRequest extends FormRequest
     {
         return [
             'email.unique' => 'This email address is already in use. Try another friend!',
+            'g-recaptcha-response.required' => 'Please complete the captcha',
         ];
     }
 
