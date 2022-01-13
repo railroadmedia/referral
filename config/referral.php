@@ -25,6 +25,7 @@ return [
     'app_route_middleware_logged_in_groups' => [],
 
     'email_invite_redirect_route' => 'members.home',
+    'claim_redirect_route' => 'members.home',
 
     'referrals_per_user' => 5,
 

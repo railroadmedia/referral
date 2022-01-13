@@ -170,6 +170,6 @@ class ReferralController extends Controller
                 ->json(['success' => true, 'claiming_user_id' => $user->getId()]);
         }
 
-        return redirect()->route(config('referral.email_invite_redirect_route'));
+        return redirect()->route(config('referral.claim_redirect_route'));
     }
 }
