@@ -32,7 +32,6 @@ class ClaimingJoinRequest extends FormRequest
                 config('referral.database_info_for_unique_user_email_validation.table') .
                 ',' .
                 config('referral.database_info_for_unique_user_email_validation.email_column'),
-            'phone' => 'required',
             'referral_code' => 'required',
             'password' => 'required|confirmed|' .
                 config('referral.password_creation_rules', 'min:8|max:128'),
