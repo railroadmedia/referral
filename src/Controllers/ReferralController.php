@@ -68,9 +68,11 @@ class ReferralController extends Controller
      */
     public function emailInvite(EmailInviteRequest $request)
     {
+        $brand = $request->get('brand');
         $referrer = $this->referralService->getOrCreateReferrer(
-            auth()->id(),
-            config('referral.saasquatch_referral_program_id')
+            user()->id,
+            config('referral.saasquatch_referral_program_id.' . $brand),
+            $brand
         );
 
         if (!$this->referralService->canRefer($referrer)) {
@@ -81,10 +83,11 @@ class ReferralController extends Controller
         }
 
         // this event is used in other packages to actually send the email
-        event(new EmailInvite($request->get('email'), $referrer->referral_link, config('referral.brand')));
+        event(new EmailInvite($request->get('email'), $referrer->referral_link, $brand));
 
         $redirect = $request->has('redirect') ? $request->get('redirect') : url()->route(
-            config('referral.email_invite_redirect_route')
+            config('referral.email_invite_redirect_route'),
+             ['brand' => $request->get('brand')]
         );
 
         // this endpoint can handle json requests for the mobile app as well
@@ -160,7 +163,7 @@ class ReferralController extends Controller
 
         $referrer->save();
 
-        $this->saasquatchService->applyReferralCode($user->getId(), $referrer->referral_code);
+        $this->saasquatchService->applyReferralCode($user->getId(), $referrer->referral_code, $request->get('brand'));
 
         auth()->loginUsingId($user->getId());
 
@@ -170,6 +173,6 @@ class ReferralController extends Controller
                 ->json(['success' => true, 'claiming_user_id' => $user->getId()]);
         }
 
-        return redirect()->route(config('referral.claim_redirect_route'));
+        return redirect()->route(config('referral.claim_redirect_route'), ['brand' => $request->get('brand')]);
     }
 }

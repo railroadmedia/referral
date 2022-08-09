@@ -24,12 +24,18 @@ class SaasquatchUser
      */
     private $referralLink;
 
-    public function __construct($userId, $referralProgramId, $referralCode, $referralLink)
+    /**
+     * @var string
+     */
+    private $brand;
+
+    public function __construct($userId, $referralProgramId, $referralCode, $referralLink, $brand)
     {
         $this->userId = $userId;
         $this->referralProgramId = $referralProgramId;
         $this->referralCode = $referralCode;
         $this->referralLink = $referralLink;
+        $this->brand = $brand;
     }
 
     /**
@@ -45,7 +51,7 @@ class SaasquatchUser
      */
     public function getReferralProgramId(): string
     {
-        return $this->referralProgramId;
+        return $this->referralProgramId[$this->brand];
     }
 
     /**
@@ -63,4 +69,22 @@ class SaasquatchUser
     {
         return $this->referralLink;
     }
+
+    /**
+     * @return string
+     */
+    public function getBrand(): string
+    {
+        return $this->brand;
+    }
+
+    /**
+     * @param string $brand
+     */
+    public function setBrand(string $brand): void
+    {
+        $this->brand = $brand;
+    }
+
+
 }

@@ -18,7 +18,7 @@ Route::group(
 
 Route::group(
     [
-        'middleware' => config('referral.route_middleware_not_logged_in_groups'),
+        'middleware' => config('referral.route_middleware_public_groups'),
         'prefix' => config('referral.route_prefix'),
     ], function () {
     Route::post(

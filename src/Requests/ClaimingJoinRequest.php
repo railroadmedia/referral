@@ -35,6 +35,7 @@ class ClaimingJoinRequest extends FormRequest
             'referral_code' => 'required',
             'password' => 'required|confirmed|' .
                 config('referral.password_creation_rules', 'min:8|max:128'),
+            'brand' => 'required'
         ];
 
     }

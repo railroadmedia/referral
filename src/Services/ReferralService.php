@@ -49,7 +49,7 @@ class ReferralService
      *
      * @throws Exception
      */
-    public function getReferrer(int $userId, string $referralProgramId): ?Referrer
+    public function getReferrer(int $userId, string $referralProgramId, string $brand): ?Referrer
     {
         /**
          * @var $referrer Referrer
@@ -58,6 +58,7 @@ class ReferralService
             [
                 'user_id' => $userId,
                 'referral_program_id' => $referralProgramId,
+                'brand' => $brand
             ]
         )->first();
 
@@ -69,12 +70,11 @@ class ReferralService
      * @param  string  $referralProgramId
      * @return Referrer
      */
-    public function getOrCreateReferrer(int $userId, string $referralProgramId): Referrer
+    public function getOrCreateReferrer(int $userId, string $referralProgramId, $brand): Referrer
     {
-        $referrer = $this->getReferrer($userId, $referralProgramId);
-
+        $referrer = $this->getReferrer($userId, $referralProgramId, $brand);
         if (is_null($referrer)) {
-            $referrer = $this->createReferrer($userId);
+            $referrer = $this->createReferrer($userId, $brand);
         }
 
         return $referrer;
@@ -87,9 +87,9 @@ class ReferralService
      * @throws SaasquatchException
      * @throws Throwable
      */
-    public function createReferrer(int $userId): Referrer
+    public function createReferrer(int $userId, $brand): Referrer
     {
-        $saasquatchUser = $this->saasquatchService->createOrGetUser($userId);
+        $saasquatchUser = $this->saasquatchService->createOrGetUser($userId, $brand);
 
         $referrer = new Referrer();
 
@@ -98,6 +98,7 @@ class ReferralService
         $referrer->referral_code = $saasquatchUser->getReferralCode();
         $referrer->referral_link = $saasquatchUser->getReferralLink();
         $referrer->referrals_performed = 0;
+        $referrer->brand = $brand;
 
         $referrer->setCreatedAt(Carbon::now());
         $referrer->setUpdatedAt(Carbon::now());

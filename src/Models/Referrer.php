@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @package Railroad\Referral\Models
  *
  * @property integer $user_id
+ * @property string $brand
  * @property string $referral_program_id
  * @property string $referral_link
  * @property string $referral_code

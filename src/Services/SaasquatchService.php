@@ -39,12 +39,12 @@ class SaasquatchService
      * @throws ReferralException
      * @throws SaasquatchException
      */
-    public function getUser($userId): ?SaasquatchUser
+    public function getUser($userId, $brand): ?SaasquatchUser
     {
         try {
             $userData = $this->saasquatchApi->getUser($userId);
 
-            return $this->hydrateSaasquatchUser($userData);
+            return $this->hydrateSaasquatchUser($userData, $brand);
         } catch (NotFoundException $ex) {
             return null;
         } catch (Exception $e) {
@@ -60,12 +60,12 @@ class SaasquatchService
      * @throws ReferralException
      * @throws SaasquatchException
      */
-    public function createOrGetUser($userId): SaasquatchUser
+    public function createOrGetUser($userId, $brand): SaasquatchUser
     {
-        $userData = $this->getUser($userId);
+        $userData = $this->getUser($userId, $brand);
 
         if (empty($userData)) {
-            $userData = $this->hydrateSaasquatchUser($this->saasquatchApi->createUser($userId));
+            $userData = $this->hydrateSaasquatchUser($this->saasquatchApi->createUser($userId), $brand);
         }
 
         return $userData;
@@ -80,9 +80,9 @@ class SaasquatchService
      * @throws SaasquatchException
      * @throws SaasquatchUserExistsException
      */
-    public function applyReferralCode($userId, $referralCode)
+    public function applyReferralCode($userId, $referralCode, $brand)
     {
-        $saasquatchUser = $this->createOrGetUser($userId);
+        $saasquatchUser = $this->createOrGetUser($userId, $brand);
 
         $this->saasquatchApi->applyReferralCode($userId, $referralCode);
 
@@ -94,13 +94,15 @@ class SaasquatchService
      *
      * @return SaasquatchUser
      */
-    public function hydrateSaasquatchUser($userData): SaasquatchUser
+    public function hydrateSaasquatchUser($userData, $brand): SaasquatchUser
     {
         $userId = $userData->id;
+        // from various tests, it seems $userData->referralCodes returns max 10 program ids, even though there might be more than 10 active programs
+        // we should try to not have more than 10 programs launched in saasqautch platform
+        // https://docs.saasquatch.com/api/methods#User
+        $referralCode = $userData->referralCodes->{$this->saasquatchReferralProgramId[$brand]};
+        $referralLink = $userData->programShareLinks->{$this->saasquatchReferralProgramId[$brand]}->cleanShareLink;
 
-        $referralCode = $userData->referralCodes->{$this->saasquatchReferralProgramId};
-        $referralLink = $userData->programShareLinks->{$this->saasquatchReferralProgramId}->cleanShareLink;
-
-        return new SaasquatchUser($userId, $this->saasquatchReferralProgramId, $referralCode, $referralLink);
+        return new SaasquatchUser($userId, $this->saasquatchReferralProgramId, $referralCode, $referralLink, $brand);
     }
 }
