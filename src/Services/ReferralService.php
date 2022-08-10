@@ -68,9 +68,10 @@ class ReferralService
     /**
      * @param  int  $userId
      * @param  string  $referralProgramId
+     * @param  string $brand
      * @return Referrer
      */
-    public function getOrCreateReferrer(int $userId, string $referralProgramId, $brand): Referrer
+    public function getOrCreateReferrer(int $userId, string $referralProgramId, string $brand): Referrer
     {
         $referrer = $this->getReferrer($userId, $referralProgramId, $brand);
         if (is_null($referrer)) {
