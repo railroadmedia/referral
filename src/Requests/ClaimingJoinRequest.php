@@ -49,7 +49,14 @@ class ClaimingJoinRequest extends FormRequest
     {
         return [
             'email.unique' => 'This email address is already in use. Try another friend!',
-            'g-recaptcha-response.required' => 'Please complete the captcha',
+            'g-recaptcha-response.required' => 'Please complete the captcha.',
+            'name.required' => 'The name field is required.',
+            'password.required' => 'The password field is required.',
+            'password.confirmed' => 'The password confirmation does not match.',
+            'password.min' => 'The password must be at least 8 characters.',
+            'password.max' => 'The password may not be greater than 128 characters.',
+            'email.email' => 'The email must be a valid email address.',
+            'email.required' => 'The email field is required.'
         ];
     }
 
