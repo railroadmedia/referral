@@ -14,7 +14,7 @@ class AddBrandColumnToReferralReferrersTable extends Migration
     public function up()
     {
         Schema::table('referral_referrers', function (Blueprint $table) {
-            $table->string('brand')->after('user_id');
+            $table->string('brand')->nullable()->after('user_id');
         });
     }
 
