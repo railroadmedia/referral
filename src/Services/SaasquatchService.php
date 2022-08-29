@@ -43,7 +43,6 @@ class SaasquatchService
     {
         try {
             $userData = $this->saasquatchApi->getUser($userId);
-
             return $this->hydrateSaasquatchUser($userData, $brand);
         } catch (NotFoundException $ex) {
             return null;
@@ -96,12 +95,16 @@ class SaasquatchService
      */
     public function hydrateSaasquatchUser($userData, $brand): SaasquatchUser
     {
+
         $userId = $userData->id;
-        // from various tests, it seems $userData->referralCodes returns max 10 program ids, even though there might be more than 10 active programs
-        // we should try to not have more than 10 programs launched in saasqautch platform
-        // https://docs.saasquatch.com/api/methods#User
-        $referralCode = $userData->referralCodes->{$this->saasquatchReferralProgramId[$brand]};
-        $referralLink = $userData->programShareLinks->{$this->saasquatchReferralProgramId[$brand]}->cleanShareLink;
+        /* from various tests, it seems $userData->referralCodes returns max 10 program ids, even though there might be more than 10 active programs */
+        // $referralCode = $userData->referralCodes->{$this->saasquatchReferralProgramId[$brand]};
+        // $referralLink = $userData->programShareLinks->{$this->saasquatchReferralProgramId[$brand]}->cleanShareLink;
+
+
+        /* for this reason, we use a GraphQL query to retrieve data using upsertUser call */
+        $referralCode = $this->saasquatchApi->upsertUserUsingGraphqlAPI($userId)->data->upsertUser->referralCodes->{$this->saasquatchReferralProgramId[$brand]};
+        $referralLink = $this->saasquatchApi->getShareUrlsFromUser($userId, $brand)->shareLinks->cleanShareLink;
 
         return new SaasquatchUser($userId, $this->saasquatchReferralProgramId, $referralCode, $referralLink, $brand);
     }

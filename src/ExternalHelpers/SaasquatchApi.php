@@ -81,6 +81,58 @@ class SaasquatchApi
         return $user;
     }
 
+
+    /**
+     * @param  int  $userId
+     * @param  string  $brand
+     *
+     * @return object
+     *
+     * @throws NotFoundException
+     * @throws ReferralException
+     * @throws SaasquatchException
+     *
+     * @description : https://docs.saasquatch.com/api/methods#get_shareurls
+     */
+    public function getShareUrlsFromUser($userId, $brand) {
+        $pathFormat = "/api/v1/%s/open/account/%s/user/%s/shareurls?programId=%s";
+        $path = sprintf($pathFormat, $this->saasquatchTenantAlias, $userId, $userId, $this->saasquatchReferralProgramId[$brand]);
+        return $this->sendRequest("GET", $path);
+    }
+
+
+    /**
+     * @param  int  $userId
+     *
+     * @return object
+     *
+     * @throws NotFoundException
+     * @throws ReferralException
+     * @throws SaasquatchException
+     *
+     * @description : https://docs.saasquatch.com/api/methods#open_user_upsert
+     * @description : https://docs.saasquatch.com/graphql/reference
+     */
+    public function upsertUserUsingGraphqlAPI($userId) {
+        $path = sprintf("api/v1/%s/graphql", $this->saasquatchTenantAlias);
+
+        $requestJsonBody =
+            "mutation {
+                upsertUser(
+                userInput: {
+                    id: \"". $userId ."\"
+                    accountId: \"" . $userId . "\"
+                    }
+                ) {
+                    id
+                    accountId,
+                    referralCodes
+                }
+            }";
+
+        return $this->sendRequest("POST", $path, $requestJsonBody);
+    }
+
     /**
      * @return object
      *
