@@ -51,6 +51,7 @@ class ReferralService
      */
     public function getReferrer(int $userId, string $referralProgramId): ?Referrer
     {
+
         /**
          * @var $referrer Referrer
          */
@@ -58,6 +59,7 @@ class ReferralService
             [
                 'user_id' => $userId,
                 'referral_program_id' => $referralProgramId,
+                'brand' => config('referral.brand')
             ]
         )->first();
 
@@ -98,7 +100,7 @@ class ReferralService
         $referrer->referral_code = $saasquatchUser->getReferralCode();
         $referrer->referral_link = $saasquatchUser->getReferralLink();
         $referrer->referrals_performed = 0;
-
+        $referrer->brand = config('referral.brand');
         $referrer->setCreatedAt(Carbon::now());
         $referrer->setUpdatedAt(Carbon::now());
 
