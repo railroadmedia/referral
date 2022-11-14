@@ -108,6 +108,8 @@ class ReferralController extends Controller
      */
     public function claimingJoin(ClaimingJoinRequest $request)
     {
+        $brand = $request->get('brand');
+
         /**
          * @var $referrer Referrer
          */
@@ -135,7 +137,7 @@ class ReferralController extends Controller
             );
         }
 
-        $productToAssign = $this->productRepository->bySku(config('referral.referral_program_product_sku'));
+        $productToAssign = $this->productRepository->bySku(config('referral.referral_program_product_sku.'. $brand));
 
         if (empty($productToAssign)) {
             throw new Exception(
@@ -163,7 +165,7 @@ class ReferralController extends Controller
 
         $referrer->save();
 
-        $this->saasquatchService->applyReferralCode($user->getId(), $referrer->referral_code, $request->get('brand'));
+        $this->saasquatchService->applyReferralCode($user->getId(), $referrer->referral_code, $brand);
 
         auth()->loginUsingId($user->getId());
 
@@ -173,6 +175,6 @@ class ReferralController extends Controller
                 ->json(['success' => true, 'claiming_user_id' => $user->getId()]);
         }
 
-        return redirect()->route(config('referral.claim_redirect_route'), ['brand' => $request->get('brand')]);
+        return redirect()->route(config('referral.claim_redirect_route'), ['brand' => $brand]);
     }
 }
