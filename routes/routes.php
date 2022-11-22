@@ -16,13 +16,11 @@ Route::group(
     }
 );
 
-Route::group(
-    [
-        'middleware' => config('referral.route_middleware_public_groups'),
-        'prefix' => config('referral.route_prefix'),
-    ], function () {
-    Route::post(
-        '/claiming-join',
-        Railroad\Referral\Controllers\ReferralController::class . '@claimingJoin'
-    )->name('referral.claiming-join');
-});
+Route::middleware(['web_public'])
+    ->prefix('referral')
+    ->group(function () {
+        Route::post(
+            '/claiming-join',
+            Railroad\Referral\Controllers\ReferralController::class . '@claimingJoin'
+        )->name('referral.claiming-join');
+    });
