@@ -11,6 +11,7 @@ use Railroad\Ecommerce\Contracts\UserProviderInterface;
 use Railroad\Ecommerce\Repositories\ProductRepository;
 use Railroad\Ecommerce\Services\UserProductService;
 use Railroad\Referral\Events\EmailInvite;
+use Railroad\Referral\Events\ReferralClaimed;
 use Railroad\Referral\Models\Referrer;
 use Railroad\Referral\Requests\ClaimingJoinRequest;
 use Railroad\Referral\Requests\EmailInviteRequest;
@@ -168,6 +169,9 @@ class ReferralController extends Controller
         $this->saasquatchService->applyReferralCode($user->getId(), $referrer->referral_code, $brand);
 
         auth()->loginUsingId($user->getId());
+
+        event(new ReferralClaimed($referrer, $productToAssign->getId(), $user->getId()));
+
 
         // this endpoint can handle json requests for the mobile app as well
         if ($request->isJson()) {
